@@ -22,13 +22,22 @@
 
 import PackageDescription
 
+#if os(Linux)
+    let cOpenSSLRepo = "https://github.com/PerfectlySoft/Perfect-COpenSSL-Linux.git"
+#else
+    let cOpenSSLRepo = "https://github.com/PerfectlySoft/Perfect-COpenSSL.git"
+#endif
+
 let package = Package(
         name: "Starscream",
         products: [
             .library(name: "Starscream", targets: ["Starscream"])
         ],
-        dependencies: [],
+        dependencies: [
+            .package(url: "https://github.com/PerfectlySoft/Perfect-CZlib-src.git", from: "0.0.0"),
+            .package(url: cOpenSSLRepo, from: "4.0.0")
+        ],
         targets: [
-            .target(name: "Starscream")
+            .target(name: "Starscream", dependencies: ["PerfectCZlib", "COpenSSL"])
         ]
 )

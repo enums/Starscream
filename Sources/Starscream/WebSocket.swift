@@ -21,7 +21,7 @@
 
 import Foundation
 import CoreFoundation
-import CommonCrypto
+import COpenSSL
 
 public let WebsocketDidConnectNotification = "WebsocketDidConnectNotification"
 public let WebsocketDidDisconnectNotification = "WebsocketDidDisconnectNotification"
@@ -1321,10 +1321,13 @@ open class WebSocket : NSObject, StreamDelegate, WebSocketClient, WSStreamDelega
 
 private extension String {
     func sha1Base64() -> String {
-        let data = self.data(using: String.Encoding.utf8)!
-        var digest = [UInt8](repeating: 0, count:Int(CC_SHA1_DIGEST_LENGTH))
-        data.withUnsafeBytes { _ = CC_SHA1($0, CC_LONG(data.count), &digest) }
-        return Data(bytes: digest).base64EncodedString()
+        let data = self.data(using: .utf8)!
+        let pointer = data.withUnsafeBytes { (bytes: UnsafePointer<UInt8>) -> [UInt8] in
+            var digest = [UInt8](repeating: 0, count:Int(SHA_DIGEST_LENGTH))
+            SHA1(bytes, data.count, &digest)
+            return digest
+        }
+        return Data(pointer).base64EncodedString()
     }
 }
 
